@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Ipl-data-visualization by ysharc</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Ipl-data-visualization</h1>
+        <h2>Interactive web map for IPL match data</h2>
+        <a href="https://github.com/ysharc/IPL-Data-Visualization" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="ipl-data-visualization" class="anchor" href="#ipl-data-visualization" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>IPL-Data-Visualization</h1>
+
+<p>Interactive web map for IPL match data from 04/18/2008 to 05/20/2016. The interactive map can be found at <a href="http://rpubs.com/ysharc/184185">http://rpubs.com/ysharc/184185</a></p>
+
+<h2>
+<a id="quick-usage" class="anchor" href="#quick-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Usage</h2>
+
+<ol>
+<li>Download IPL match data from <a href="http://cricsheet.org/downloads/ipl_csv.zip">http://cricsheet.org/downloads/ipl_csv.zip</a>
+</li>
+<li>Extract it in any folder of your choice and run collect.py from the same folder (if running from a different location change the path of the files in collect.py)</li>
+<li>Now for plotting the data run plot.R in RStudio to view the map instantly (if running in the R console, execute the next command to export it to a html file)
+
+<ol>
+<li>library(htmlwidgets)</li>
+<li>saveWidget(map, file="map.html")<br>
+</li>
+</ol>
+</li>
+</ol>
+
+<h2>
+<a id="quick-look" class="anchor" href="#quick-look" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Look</h2>
+
+<ol>
+<li>Map starts with an overview of all IPL matches played until now.
+ <img src="http://imgur.com/VvZKdpQ" alt="alt tag">
+</li>
+<li>Select a subgroup to view their respective cluster. (For example kolkatta_wins in the following image)
+ <img src="http://imgur.com/SjNf6Uq" alt="alt tag">
+</li>
+<li>Hover mouse over a cluster point to see the area it covers
+ <img src="http://imgur.com/JnZuRla" alt="alt tag">
+</li>
+<li>zoom in to see the spread of the group
+ <img src="http://imgur.com/O0O6xKZ" alt="alt tag"><br>
+</li>
+<li>At the final zoom level click the cluster to display a spiderweb of all the matches that took place in it.
+ <img src="http://imgur.com/T7atVeM" alt="alt tag">
+</li>
+<li>The starting point of the spiral contains early day matches, where as the last point contains the latest match
+ <img src="http://imgur.com/eQycYSx" alt="alt tag">
+ <img src="http://imgur.com/8MpGfcU" alt="alt tag">
+</li>
+</ol>
+
+<h2>
+<a id="process" class="anchor" href="#process" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Process</h2>
+
+<p>The interactive map creation can be summarized by the collection and plot parts. The overview of the processes and code are explained below</p>
+
+<h6>
+<a id="data-collection" class="anchor" href="#data-collection" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data Collection</h6>
+
+<p>Download the Total IPL match data from <a href="http://cricsheet.org/downloads/ipl_csv.zip">http://cricsheet.org/downloads/ipl_csv.zip</a> . The archive contains a csv file for every match of the event. Each file typically contains the following structure</p>
+
+<table>
+<thead>
+<tr>
+<th>version</th>
+<th>1</th>
+<th>''</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>info</td>
+<td>team</td>
+<td>Delhi Daredevils</td>
+</tr>
+<tr>
+<td>info</td>
+<td>team</td>
+<td>Sunrisers Hyderabad</td>
+</tr>
+<tr>
+<td>info</td>
+<td>gender</td>
+<td>male</td>
+</tr>
+<tr>
+<td>info</td>
+<td>season</td>
+<td>2016</td>
+</tr>
+<tr>
+<td>info</td>
+<td>date</td>
+<td>5/20/2016</td>
+</tr>
+<tr>
+<td>info</td>
+<td>competition</td>
+<td>Indian Premier League</td>
+</tr>
+<tr>
+<td>info</td>
+<td>match_number</td>
+<td>52</td>
+</tr>
+<tr>
+<td>info</td>
+<td>venue</td>
+<td>Shaheed Veer Narayan Singh International Stadium</td>
+</tr>
+<tr>
+<td>info</td>
+<td>city</td>
+<td>Raipur</td>
+</tr>
+<tr>
+<td>info</td>
+<td>toss_winner</td>
+<td>Delhi Daredevils</td>
+</tr>
+<tr>
+<td>info</td>
+<td>toss_decision</td>
+<td>field</td>
+</tr>
+<tr>
+<td>info</td>
+<td>player_of_match</td>
+<td>KK Nair</td>
+</tr>
+<tr>
+<td>info</td>
+<td>umpire</td>
+<td>A Nand Kishore</td>
+</tr>
+<tr>
+<td>info</td>
+<td>umpire</td>
+<td>BNJ Oxenford</td>
+</tr>
+<tr>
+<td>info</td>
+<td>reserve_umpire</td>
+<td>YC Barde</td>
+</tr>
+<tr>
+<td>info</td>
+<td>tv_umpire</td>
+<td>VK Sharma</td>
+</tr>
+<tr>
+<td>info</td>
+<td>match_referee</td>
+<td>S Chaturvedi</td>
+</tr>
+<tr>
+<td>info</td>
+<td>winner</td>
+<td>Delhi Daredevils</td>
+</tr>
+<tr>
+<td>info</td>
+<td>winner_wickets</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+
+<p>The remaining lines contain ball to ball info of the two innings, but the columns are inconsistent. For example a normal ball contains 8 columns where as a wicket contains 11 columns. Using <code>glob</code> library extract all the names of the csv files to access </p>
+
+<pre><code>   file_names = glob.glob('*.csv')
+</code></pre>
+
+<p>Next using the <code>csv</code> library open an input file, create a writer object and create the header</p>
+
+<pre><code>with open('input_data.csv','wb') as input_file:
+   writer = csv.writer(input_file,quoting=csv.QUOTE_ALL)
+   writer.writerow(['Match','Season','date','venue','city','lat','lon','Winner','sf'])
+</code></pre>
+
+<p>With the <code>input_file</code> open iterate over every file name  in the list <code>file_names</code> and extract info using the <code>pandas</code> library. For example extract the date of each match as shown below</p>
+
+<pre><code>for filename in file_names:
+
+        df = pd.read_csv(filename, warn_bad_lines=False, error_bad_lines=False)
+
+        date = df.loc[df['version']=='date'].iloc[0,1]
+</code></pre>
+
+<p>Extract whatever features you want to plot on the map, here in this example the match,date and winner are plotted. The next important step is to collect co-ordinates of the location using any geocoding API or webscraping. Here in this example the nominatim search is used to query for co-ordinates(more info on parameters at <a href="http://wiki.openstreetmap.org/wiki/Nominatim#Parameters">http://wiki.openstreetmap.org/wiki/Nominatim#Parameters</a>).</p>
+
+<p>Using the <code>requests</code> and <code>beautifulsoup</code> libraries collect and scrape the data you need. </p>
+
+<pre><code>            response = session.get('http://nominatim.openstreetmap.org/search.php?q='+venue.replace(' ','+')+'&amp;polygon=1&amp;viewbox=')
+
+            soup = bs4.BeautifulSoup(response.text,'html.parser')
+
+            required_element = str(soup.select('script'))
+
+            phrase = re.compile('nominatim_results(.*?)\[(.*?)\]')
+
+            ans = phrase.search(required_element)
+
+            lat_lon_str = ans.group()
+
+            lat_pattern = re.compile(ur'lat": "(.*?)"')
+
+            lat = lat_pattern.search(lat_lon_str)
+
+            lon_pattern = re.compile(ur'lon": "(.*?)"')
+
+            lon = lon_pattern.search(lat_lon_str)
+
+</code></pre>
+
+<p>Now that you have collected all the data needed, update our input file with the info gathered</p>
+
+<pre><code>            writer.writerow([match,season,date,venue,city,venue_lat_lon[(venue,city)][0],venue_lat_lon[(venue,city)][1],winner,sf])
+</code></pre>
+
+<p>Finally you have the input_data.csv file created with all the info you wanted, now moving on to the plot process.</p>
+
+<h6>
+<a id="plotting" class="anchor" href="#plotting" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Plotting</h6>
+
+<p>In this process we create interactive web maps using <code>leaflet</code> and <code>htmltools</code> packages of <code>R</code>. The first step is to read in the data we created in the previous process</p>
+
+<pre><code>IPL = read.csv("input_data.csv")
+</code></pre>
+
+<p>Create subsets of the dataframe for analyzing the win locations of each team. For example</p>
+
+<pre><code>chennai_wins &lt;- IPL[which(IPL$Winner =='Chennai Super Kings'),]
+</code></pre>
+
+<p>Next create icons for each team to display on the map </p>
+
+<pre><code>teamIcons &lt;- iconList(
+  csk = makeIcon("csk.png", iconWidth=36,iconHeight=36),
+  dc = makeIcon("dc.png", iconWidth=36,iconHeight=36),
+  dd = makeIcon("dd.png", iconWidth=36,iconHeight=36),
+  gl = makeIcon("gl.png", iconWidth=36,iconHeight=36),
+  kxp = makeIcon("kxp.png", iconWidth=36,iconHeight=36),
+  ktk = makeIcon("ktk.png", iconWidth=36,iconHeight=36),
+  kkr = makeIcon("kkr.png", iconWidth=36,iconHeight=36),
+  mi = makeIcon("mi.png", iconWidth=36,iconHeight=36),
+  pw = makeIcon("pw.png", iconWidth=36,iconHeight=36),
+  rr = makeIcon("rr.png", iconWidth=36,iconHeight=36),
+  rps = makeIcon("rps.png", iconWidth=36,iconHeight=36),
+  rcb = makeIcon("rcb.png", iconWidth=36,iconHeight=36),
+  sh = makeIcon("srh.png", iconWidth=36,iconHeight=36),
+  t = makeIcon("draw.png", iconWidth=36,iconHeight=36)
+)
+</code></pre>
+
+<p>Now initialize the map and set the basemaps.</p>
+
+<pre><code>map &lt;- leaflet(IPL) %&gt;% 
+
+  #overlay groups
+  addTiles(group = "OSM (default)") %&gt;%
+  addProviderTiles("Esri.WorldGrayCanvas", group = "Esri.WorldGrayCanvas") %&gt;%
+
+</code></pre>
+
+<p>Next add markers and cluster options to the data and finally add overlay Controls.</p>
+
+<pre><code>addMarkers(data=IPL,icon=~teamIcons[IPL$sf], group = "IPL",popup = ~htmlEscape(paste(Match,"***",date,"***","Winner: ",Winner)),clusterOptions = markerClusterOptions()) %&gt;%
+  addMarkers(data=Matches_that_tied,icon=~teamIcons[Matches_that_tied$sf], group = "Matches_that_tied",popup = ~htmlEscape(paste(Match,"***",date,"***","Winner: ",Winner)),clusterOptions = markerClusterOptions()) %&gt;%
+
+  # Layers control
+  addLayersControl(
+    overlayGroups = c("OSM (default)", "Esri.WorldGrayCanvas"),
+    baseGroups = c("IPL","Matches_that_tied"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+</code></pre>
+
+<h1>
+<a id="references" class="anchor" href="#references" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>References</h1>
+
+<ol>
+<li><a href="http://nominatim.openstreetmap.org/search">http://nominatim.openstreetmap.org/search</a></li>
+<li><a href="http://rstudio.github.io/leaflet/">http://rstudio.github.io/leaflet/</a></li>
+</ol>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/ysharc/IPL-Data-Visualization/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/ysharc/IPL-Data-Visualization/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/ysharc/IPL-Data-Visualization"></a> is maintained by <a href="https://github.com/ysharc">ysharc</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
